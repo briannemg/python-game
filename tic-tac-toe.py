@@ -7,129 +7,114 @@ Usage:
 
 import random
 
-# Define the board state
-def create_board():
-    return {
-        "A": "A", "B": "B", "C": "C",
-        "D": "D", "E": "E", "F": "F",
-        "G": "G", "H": "H", "J": "J"
-    }
+# Create a class that manages the board state, player info, input/output, and game logic.
+class TicTacToeGame:
+    def __init__(self):
+        self.winning_combinations = [
+            ["A", "B", "C"],  # Row 1
+            ["D", "E", "F"],  # Row 2
+            ["G", "H", "J"],  # Row 3
+            ["A", "D", "G"],  # Col 1
+            ["B", "E", "H"],  # Col 2
+            ["C", "F", "J"],  # Col 3
+            ["A", "E", "J"],  # Diagonal 1
+            ["C", "E", "G"]   # Diagonal 2
+        ]
+        self.positions = [
+            "A", "B", "C",
+            "D", "E", "F",
+            "G", "H", "J"
+        ]
+        self.players = {}
+        self.board = {}
+        self.occupied = {}
+        self.player_turn = True  # True = player 1, False = player 2
 
-# Define a function to keep track of who owns what space
-# True = X (Player 1), False = O (Player 2), None = not taken
-def create_occupied():
-    return {pos: None for pos in [
-        "A", "B", "C",
-        "D", "E", "F",
-        "G", "H", "J"
-    ]}
+    def setup_players(self):
+        name1 = input("Enter Player 1 name (X): ").strip()
+        name2 = input("Enter Player 2 name (O): ").strip()
+        self.players = {
+            True: {"name": name1, "mark": "X"},
+            False: {"name": name2, "mark": "O"}
+        }
 
-# Winning combinations (rows, columns, diagonals)
-winning_combinations = [
-    # Rows
-    ["A", "B", "C"],
-    ["D", "E", "F"],
-    ["G", "H", "J"],
-    # Columns
-    ["A", "D", "G"],
-    ["B", "E", "H"],
-    ["C", "F", "J"],
-    # Diagonals
-    ["A", "E", "J"],
-    ["C", "E", "G"]
-]
+    def reset_board(self):
+        self.board = {pos: pos for pos in self.positons}
+        self.occupied = {pos: None for pos in self.positions}
+        self.player_turn = random.choice([True, False])
+        print(f"\nFlipping a coin... 🎲 {self.players[self.player_turn]['name']} goes first!")
 
-# Define a function to print the board on the console
-def print_board(board):
-    print()
-    print(f"{board['A']} | {board['B']} | {board['C']}")
-    print("---+----+---")
-    print(f"{board['D']} | {board['E']} | {board['F']}")
-    print("---+----+---")
-    print(f"{board['G']} | {board['H']} | {board['J']}")
-    print()
+    def print_board(self):
+        b = self.board
+        print()
+        print(f"{b["A"]} | {b["B"]} | {b["C"]}")
+        print("---+----+---")
+        print(f"{b["D"]} | {b["E"]} | {b["F"]}")
+        print("---+----+---")
+        print(f"{b["G"]} | {b["H"]} | {b["J"]}")
 
-# Define a function to check for a winning combination
-def check_winner(occupied):
-    for combo in winning_combinations:
-        values = [occupied[pos] for pos in combo]
-        if values[0] is not None and all(val == values[0] for val in values):
-            return values[0]
-    return None
-
-# Define a function to check if the game is a draw
-def is_draw(occupied):
-    return all(value is not None for value in occupied.values())
-
-# Define a function to repeat the game, if desired
-def play_again():
-    while True:
-        answer = input("Play again? (y/n): ").strip().lower()
-        if answer in ["y", "yes"]:
-            return True
-        elif answer in ["n", "no"]:
-            return False
-        else:
-            print("Please enter 'y' or 'n'.")
-
-# Define the game function
-def play_game():
-
-    # Get player names from the command line once
-    player1 = input("Enter Player 1 name (X): ").strip()
-    player2 = input("Enter Player 2 name (O): ").strip()
-    print(f"Welcome to the game, {player1} and {player2}!")
-    players = {
-        True: {"name": player1, "mark": "X"},
-        False: {"name": player2, "mark": "O"}
-    }
-
-    # Repeat game from here
-    while True:
-
-        # Create the board
-        board = create_board()
-        occupied = create_occupied()
-
-        # Randomize who goes first
-        player_turn = random.choice([True, False])
-        print(f"\nFlipping a coin... 🎲 {players[player_turn]['name']} goes first!")
-
-        # Start the game
-        print("\nGame start! Use positions like A, E, etc.")
-        print_board(board)
-
-        # Play the game
+    def check_winner(self):
+        for combo in self.winning_combinations:
+            values = [self.occupied[pos] for pos in combo]
+            if values[0] is not None and all(v == values[0] for v in values):
+                return values[0]
+        return None
+    
+    def is_draw(self):
+        return all(v is not None for v in self.occupied.values())
+    
+    def get_move(self):
+        current = self.players[self.player_turn]
         while True:
-            current = players[player_turn]
             move = input(f"{current['name']} ({current['mark']}), choose your move: ").strip().upper()
-
-            if move not in board:
-                print("Invalid position. Try again")
-                continue
-            if occupied[move] is not None:
+            if move not in self.board:
+                print("Invalid position. Try again.")
+            elif self.occupied[move] is not None:
                 print("That space is already taken. Try again.")
-                continue
+            else:
+                return move
+            
+    def play_round(self):
+        self.reset_board()
+        print("\nGame start! Use positions like A, B, etc.")
+        self.print_board()
 
-            board[move] = current["mark"]
-            occupied[move] = player_turn
-            print_board(board)
+        while True:
+            move = self.get_move()
+            mark = self.players[self.player_turn]["mark"]
+            self.board[move] = mark
+            self.occupied[move] = self.player_turn
+            self.print_board()
 
-            winner = check_winner(occupied)
+            winner = self.check_winner()
             if winner is not None:
-                print(f"{players[winner]['name']} wins! 🏆")
+                print(f"{self.players[winner]['name']} wins! 🏆")
                 break
-
-            if is_draw(occupied):
+            if self.is_draw():
                 print("It's a draw! 🤝")
                 break
 
-            player_turn = not player_turn
+            self.player_turn = not self.player_turn
 
-        if not play_again():
-            print("Thanks for playing! 👋")
-            break
+    def play_again(self):
+        while True:
+            answer = input("Play again? (y/n): ").strip().lower()
+            if answer in ["y", "yes"]:
+                return True
+            elif answer in ["n", "no"]:
+                return False
+            else:
+                print("Please enter 'y' or 'n'.")
 
-# Run the script
+    def play(self):
+        self.setup_players()
+        while True:
+            self.play_round()
+            if not self.play_again():
+                print("Thanks for playing! 👋")
+                break 
+
+# Run it
 if __name__ == "__main__":
-    play_game()
+    game = TicTacToeGame()
+    game.play()
