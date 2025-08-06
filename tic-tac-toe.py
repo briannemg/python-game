@@ -39,7 +39,7 @@ class TicTacToeGame:
         }
 
     def reset_board(self):
-        self.board = {pos: pos for pos in self.positons}
+        self.board = {pos: pos for pos in self.positions}
         self.occupied = {pos: None for pos in self.positions}
         self.player_turn = random.choice([True, False])
         print(f"\nFlipping a coin... 🎲 {self.players[self.player_turn]['name']} goes first!")
@@ -47,11 +47,12 @@ class TicTacToeGame:
     def print_board(self):
         b = self.board
         print()
-        print(f"{b["A"]} | {b["B"]} | {b["C"]}")
-        print("---+----+---")
-        print(f"{b["D"]} | {b["E"]} | {b["F"]}")
-        print("---+----+---")
-        print(f"{b["G"]} | {b["H"]} | {b["J"]}")
+        print(f"{b['A']} | {b['B']} | {b['C']}")
+        print("--+---+--")
+        print(f"{b['D']} | {b['E']} | {b['F']}")
+        print("--+---+--")
+        print(f"{b['G']} | {b['H']} | {b['J']}")
+        print()
 
     def check_winner(self):
         for combo in self.winning_combinations:
